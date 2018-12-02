@@ -1,9 +1,9 @@
-﻿// Learn more about F# at http://fsharp.org
+﻿module Day1
 
 open System
 open System.IO
 
-let readLines = File.ReadLines
+open Util
 
 type Change =
     | Plus of int
@@ -44,8 +44,7 @@ with
         Iteration = 0
     }
 
-[<EntryPoint>]
-let main argv =
+let day1 =
     let lines = readLines "Day1.input"
     let changes = Seq.map Parser.read lines |> List.ofSeq
     let rec loop state xs =
@@ -81,5 +80,4 @@ let main argv =
                 }
             loop state changes
     let result = loop State.New changes
-    printfn "%O" result
-    0 // return an integer exit code
+    result
