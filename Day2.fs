@@ -49,7 +49,9 @@ let day2 =
                             if char1 = char2
                             then diff
                             else diff + 1
-                        loop diff chars1 chars2
+                        if diff = 2 
+                        then None
+                        else loop diff chars1 chars2
                     | _, _ -> failwith "Should never happen"
                 loop 0 chars1 chars2
             )
