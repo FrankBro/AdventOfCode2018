@@ -23,3 +23,15 @@ module String =
         new string(chars)
 
     let toCharList (s: string) = s.ToCharArray() |> Array.toList
+
+module Parser =
+    open FParsec
+
+    type Parser<'t> = Parser<'t, unit>
+
+    let str s = pstring s
+
+    let readOrThrow (parser: Parser<'t>) input : 't =
+        match runParserOnString parser () "" input with
+        | ParserResult.Success (result, state, pos) -> result
+        | ParserResult.Failure (se, e, state) -> failwith "Parser error"

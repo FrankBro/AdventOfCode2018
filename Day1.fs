@@ -17,16 +17,9 @@ with
 module Parser =
     open FParsec
 
-    type Parser<'t> = Parser<'t, unit>
-
     let parseChange = pint32 |>> Change.FromInt
 
-    let readOrThrow (parser: Parser<'t>) input : 't =
-        match runParserOnString parser () "" input with
-        | ParserResult.Success (result, state, pos) -> result
-        | ParserResult.Failure (se, e, state) -> failwith "Parser error"
-
-    let read input = readOrThrow (parseChange .>> eof) input
+    let read input = Parser.readOrThrow (parseChange .>> eof) input
 
 type State = {
     Frequency: int
