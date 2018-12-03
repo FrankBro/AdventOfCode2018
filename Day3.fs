@@ -43,12 +43,15 @@ module Parser =
 
     let read input = Parser.readOrThrow (parseClaim .>> eof) input
 
-let part1 () =
+let getClaims () =
     let lines = readLines "Day3.input"
-    let claims = Seq.map Parser.read lines
+    Seq.map Parser.read lines
+    |> List.ofSeq
+
+let getCrossed claims =
     let rec loop covered crossed claims =
         match claims with
-        | [] -> Set.count crossed
+        | [] -> crossed
         | claim :: claims ->
             let claimCovered = covers claim
             let claimCrossed = Set.intersect claimCovered covered 
@@ -59,23 +62,14 @@ let part1 () =
     |> List.ofSeq
     |> loop Set.empty Set.empty
 
+let part1 () =
+    let claims = getClaims ()
+    let crossed = getCrossed claims
+    Set.count crossed
+
 let part2 () =
-    let lines = readLines "Day3.input"
-    let claims = 
-        Seq.map Parser.read lines
-        |> List.ofSeq
-    let rec loop covered crossed claims =
-        match claims with
-        | [] -> crossed
-        | claim :: claims ->
-            let claimCovered = covers claim
-            let claimCrossed = Set.intersect claimCovered covered 
-            let covered = Set.union covered claimCovered
-            let crossed = Set.union crossed claimCrossed
-            loop covered crossed claims
-    let crossed =
-        claims
-        |> loop Set.empty Set.empty
+    let claims = getClaims ()
+    let crossed = getCrossed claims
     claims
     |> List.pick (fun claim ->
         let claimCovered = covers claim
