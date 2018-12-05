@@ -4,6 +4,13 @@ open System.IO
 
 let readLines = File.ReadLines
 
+let inc = (+) 1
+
+let impossible () = failwith "impossible"
+
+let key (KeyValue(k, _)) = k
+let value (KeyValue(_,v)) = v
+
 module Map =
     let updateWith key fn init map =
         let value =
