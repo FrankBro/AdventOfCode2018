@@ -4,6 +4,8 @@ open System.IO
 
 let readLines = File.ReadLines
 
+let (|>!) x f = f x; x
+
 let inc = (+) 1
 
 let impossible () = failwith "impossible"
