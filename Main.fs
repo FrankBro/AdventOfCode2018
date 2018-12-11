@@ -2,6 +2,6 @@ module Main
 
 [<EntryPoint>]
 let main argv =
-    let result = Day5.part2 ()
+    let result = Day10.all ()
     printfn "%O" result
     0

@@ -13,6 +13,8 @@ let impossible () = failwith "impossible"
 let key (KeyValue(k, _)) = k
 let value (KeyValue(_,v)) = v
 
+let distance x1 x2 y1 y2 = sqrt((float (x2 - x1)) ** 2. + (float (y2 - y1)) ** 2.)
+
 module Map =
     let updateWith key fn init map =
         let value =
@@ -21,6 +23,18 @@ module Map =
             |> Option.map fn
             |> Option.defaultValue init
         Map.add key value map
+
+    let update key fn map =
+        let value =
+            map
+            |> Map.find key
+            |> fn
+        Map.add key value map
+    
+    let values m =
+        m
+        |> Map.toList
+        |> List.map snd
     
 module String =
     let filteri fn (s: string) =
@@ -35,10 +49,12 @@ module String =
 
 module Parser =
     open FParsec
+    open FParsec.CharParsers
 
     type Parser<'t> = Parser<'t, unit>
 
     let str s = pstring s
+    let ws = spaces
 
     let readOrThrow (parser: Parser<'t>) input : 't =
         match runParserOnString parser () "" input with
