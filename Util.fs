@@ -47,6 +47,15 @@ module String =
 
     let toCharList (s: string) = s.ToCharArray() |> Array.toList
 
+module List =
+    let pop n xs =
+        let rec loop n state xs =
+            match n, xs with
+            | 0, _ -> List.rev state, xs
+            | n, x :: xs -> loop (n - 1) (x :: state) xs
+            | n, [] -> impossible ()
+        loop n [] xs
+
 module Parser =
     open FParsec
     open FParsec.CharParsers
