@@ -24,7 +24,7 @@ let rec parseNode raw : Node * int list =
     | nchild :: ndata :: raw ->
         let rec loop n nodes raw =
             match n with
-            | 0 -> List.rev nodes, raw
+            | 0 -> nodes, raw
             | n ->
                 let node, raw = parseNode raw
                 loop (n - 1) (node :: nodes) raw
@@ -68,7 +68,7 @@ let rec part2Sum ((Node (children, data)) as node) : int =
         |> List.sumBy (fun n ->
             match n with
             | 0 -> 0
-            | n -> 
+            | _ -> 
                 children
                 |> List.tryItem (n - 1)
                 |> Option.map part2Sum
@@ -77,7 +77,6 @@ let rec part2Sum ((Node (children, data)) as node) : int =
 
 let part2 () =
     let nodes = getNodes ()
-    // let nodes = [Node ([Node ([], [10; 11; 12]); Node ([Node ([], [99])], [2])], [1;1;2])]
     let sum =
         nodes
         |> List.sumBy part2Sum
