@@ -30,15 +30,10 @@ let getGrid () =
     grid
 
 let find n (grid: Map<int * int, int>) =
-    // let emptyGrid = makeEmptyGrid 1 1 300
     let emptyGrid = makeEmptyGrid min min (max - n + 1)
     emptyGrid
     |> Array.Parallel.map (fun (x, y) ->
         let square = makeEmptyGrid x y n
-        // let anyOutside =
-        //     square
-        //     |> Array.exists (fun (x, y) -> x < min || x > max || y < min || y > max)
-        // if anyOutside then (x, y), 0 else
         let powers =
             square
             |> Array.Parallel.map (fun (x, y) ->
@@ -52,18 +47,30 @@ let find n (grid: Map<int * int, int>) =
 
 let part1 () =
     let grid = getGrid ()
-    let (x, y), sum =  find 3 grid
+    let (x, y), sum = find 3 grid
     (x, y)
     
 let part2 () =
     let grid = getGrid ()
+    let summedArea =
+        (Map.empty, grid)
+        ||> Map.fold (fun summedArea (x, y) power ->
+            let get dx dy = summedArea |> Map.tryFind (x + dx, y + dy) |> Option.defaultValue 0
+            let summed = power + get 0 -1 + get -1 0 - get -1 -1
+            Map.add (x, y) summed summedArea
+        )
     let x, y, n =
         [|1..300|]
-        |> Array.Parallel.map (fun n ->
-            let (x, y), sum = find n grid
-            printfn "%d" n
-            (x, y, n), sum
+        |> Array.map (fun n ->
+            let emptyGrid = makeEmptyGrid min min (max - n + 1)
+            emptyGrid 
+            |> Array.Parallel.map (fun (x, y) ->
+                let get dx dy = summedArea |> Map.tryFind (x + dx, y + dy) |> Option.defaultValue 0
+                let total = get 0 0 - get 0 -n - get -n 0 + get -n -n
+                (x, y, n), total
+            )
+            |> Array.maxBy snd
         )
         |> Array.maxBy snd
         |> fst
-    (x, y, n)
+    (x + 1 - n, y + 1 - n, n)
