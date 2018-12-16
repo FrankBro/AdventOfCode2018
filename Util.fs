@@ -31,6 +31,11 @@ module Map =
             |> fn
         Map.add key value map
     
+    let keys m =
+        m
+        |> Map.toList
+        |> List.map fst
+    
     let values m =
         m
         |> Map.toList
