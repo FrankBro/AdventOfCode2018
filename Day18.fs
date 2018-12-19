@@ -64,7 +64,7 @@ let printMap x y map =
             |> printf "%O"
         printfn ""
 
-let part1 () =
+let loop n =
     let lines = readLines "Day18.input"
     let map =
         lines
@@ -78,6 +78,8 @@ let part1 () =
         |> Seq.collect id
         |> Map.ofSeq
     let rec loop map n =
+        if n % 1000 = 0 then
+            printfn "%d" n
         match n with
         | 0 -> map
         | n ->
@@ -89,7 +91,16 @@ let part1 () =
                     |> Map.add pos next
                 )
             loop next (n - 1)
-    let final = loop map 10
+    loop map n
+
+let part1 () =
+    let final = loop 10
+    let treeCount = final |> Map.filter (fun pos tile -> tile = Tree) |> Map.count
+    let lumberyardCount = final |> Map.filter (fun pos tile -> tile = Lumberyard) |> Map.count
+    treeCount * lumberyardCount
+
+let part2 () =
+    let final = loop 1000000000 
     let treeCount = final |> Map.filter (fun pos tile -> tile = Tree) |> Map.count
     let lumberyardCount = final |> Map.filter (fun pos tile -> tile = Lumberyard) |> Map.count
     treeCount * lumberyardCount
