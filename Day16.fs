@@ -13,6 +13,7 @@ type Registers = {
     R3: int<Val>
 }
 with
+    static member New = { R0 = 0<Val>; R1 = 0<Val>; R2 = 0<Val>; R3 = 0<Val> }
     member x.Set (i: int<Reg>) (value: int<Val>) = 
         match i with
         | 0<Reg> -> { x with R0 = value }
@@ -53,6 +54,24 @@ type Op =
     | Eqri of A: int<Reg> * B: int<Val> * C: int<Reg>
     | Eqrr of A: int<Reg> * B: int<Reg> * C: int<Reg>
 with
+    static member SetRegisters a b c x = 
+        match x with
+        | Addr _ -> Addr (a * 1<Reg>, b * 1<Reg>, c * 1<Reg>)
+        | Addi _ -> Addi (a * 1<Reg>, b * 1<Val>, c * 1<Reg>)
+        | Mulr _ -> Mulr (a * 1<Reg>, b * 1<Reg>, c * 1<Reg>)
+        | Muli _ -> Muli (a * 1<Reg>, b * 1<Val>, c * 1<Reg>)
+        | Banr _ -> Banr (a * 1<Reg>, b * 1<Reg>, c * 1<Reg>)
+        | Bani _ -> Bani (a * 1<Reg>, b * 1<Val>, c * 1<Reg>)
+        | Borr _ -> Borr (a * 1<Reg>, b * 1<Reg>, c * 1<Reg>)
+        | Bori _ -> Bori (a * 1<Reg>, b * 1<Val>, c * 1<Reg>)
+        | Setr _ -> Setr (a * 1<Reg>, b * 1<Ign>, c * 1<Reg>)
+        | Seti _ -> Seti (a * 1<Val>, b * 1<Ign>, c * 1<Reg>)
+        | Gtir _ -> Gtir (a * 1<Val>, b * 1<Reg>, c * 1<Reg>)
+        | Gtri _ -> Gtri (a * 1<Reg>, b * 1<Val>, c * 1<Reg>)
+        | Gtrr _ -> Gtrr (a * 1<Reg>, b * 1<Reg>, c * 1<Reg>)
+        | Eqir _ -> Eqir (a * 1<Val>, b * 1<Reg>, c * 1<Reg>)
+        | Eqri _ -> Eqri (a * 1<Reg>, b * 1<Val>, c * 1<Reg>)
+        | Eqrr _ -> Eqrr (a * 1<Reg>, b * 1<Reg>, c * 1<Reg>)
     member x.ToNumber =
         match x with
         | Addr _ -> 0
@@ -221,3 +240,45 @@ let part1 () =
         )
         |> List.length
     count
+
+let part2 () =
+    let originalSamples, ops = getInput ()
+    let rec loop seen (state: Map<int, Op>) samples =
+        match samples with
+        | [] when seen = Map.count state -> state
+        | [] -> loop (Map.count state) state originalSamples
+        | sample :: samples ->
+            let matches =
+                produceAll sample.Op
+                |> List.filter (fun op ->
+                    apply sample.Before op = sample.After
+                )
+                |> List.filter (fun op ->
+                    state
+                    |> Map.exists (fun _ stateOp ->
+                        op.ToNumber = stateOp.ToNumber
+                    )
+                    |> not
+                )
+            match matches with
+            | [onlyPossibility] ->
+                let state =
+                    state
+                    |> Map.add sample.Op.Op onlyPossibility
+                loop seen state samples
+            | _ ->
+                loop seen state samples
+    let opMap = loop 0 Map.empty originalSamples
+    for (KeyValue(rawOp, op)) in opMap do
+        printfn "%d -> %O" rawOp op
+    let registers =
+        (Registers.New, ops)
+        ||> List.fold (fun registers op ->
+            let op =
+                opMap
+                |> Map.find op.Op
+                |> Op.SetRegisters op.A op.B op.C
+            apply registers op
+        )
+    printfn "%O" registers
+    registers.R0
