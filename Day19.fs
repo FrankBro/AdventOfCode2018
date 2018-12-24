@@ -185,21 +185,21 @@ let part1 () =
             ip, ops
         | _ -> impossible ()
     let regs = Registers.New ip
-    let rec loop regs =
+    let rec loop i regs =
         let oOp = Array.tryItem (regs.Ip / 1<Reg>) ops
         match oOp with
         | None -> regs
         | Some op ->
-            Registers.SaveIp regs
-            |> apply op
-            |> Registers.LoadIp
-            |> Registers.IncIp
-            |> loop 
-            // let a = Registers.LoadIp regs
-            // let b = apply op a
-            // let c = Registers.SaveIp b
-            // let d = Registers.IncIp c
+            // Registers.LoadIp regs
+            // |> apply op
+            // |> Registers.SaveIp
+            // |> Registers.IncIp
+            // |> loop (i + 1)
+            let a = Registers.LoadIp regs
+            let b = apply op a
+            let c = Registers.SaveIp b
+            let d = Registers.IncIp c
             // printfn "ip=%d %O %O %O" regs.Ip a op b
-            // loop d
-    let final = loop regs
+            loop (i + 1) d
+    let final = loop 0 regs
     regs.R0
